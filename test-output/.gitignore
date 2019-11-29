@@ -1,0 +1,9 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+
+# Reason: this directory is needed for the tests to run properly.
+# Therefore, it should be included in the repository.
+# But since empty directories cannot be synced with git, the .gitignore
+# file is the only file that should be synced from this folder.
