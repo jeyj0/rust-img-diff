@@ -59,6 +59,13 @@ pub fn assert_eq_or_save_diff(image_a: image::DynamicImage, image_b: image::Dyna
     }
 }
 
+pub fn assert_eq(expected_image_path: &str, given_image: image::DynamicImage, diff_output_path: &str) {
+    match Reader::open(expected_image_path) {
+        Some(expected_image) => assert_eq_or_save_diff(expected_image, given_image, diff_output_path),
+        None => given_image.save(expected_image_path)
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
