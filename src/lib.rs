@@ -1,3 +1,5 @@
+use image::io::Reader;
+
 pub fn generate_diff_image(image_a: image::DynamicImage, image_b: image::DynamicImage) -> (u32, u32, Vec<u8>) {
     let img_a = image_a.to_rgba();
     let img_b = image_b.to_rgba();
@@ -61,15 +63,16 @@ pub fn assert_eq_or_save_diff(image_a: image::DynamicImage, image_b: image::Dyna
 
 pub fn assert_eq(expected_image_path: &str, given_image: image::DynamicImage, diff_output_path: &str) {
     match Reader::open(expected_image_path) {
-        Some(expected_image) => assert_eq_or_save_diff(expected_image, given_image, diff_output_path),
-        None => given_image.save(expected_image_path)
+        Ok(expected_image) => assert_eq_or_save_diff(expected_image.decode().expect("Error decoding expected image"), given_image, diff_output_path),
+        Err(_) => {
+            given_image.save(expected_image_path).expect("Error saving image as expected");
+        }
     };
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use image::io::Reader;
 
     #[test]
     fn test_generate_diff_image() {
