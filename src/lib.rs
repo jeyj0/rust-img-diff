@@ -61,9 +61,20 @@ pub fn assert_eq_or_save_diff(image_a: image::DynamicImage, image_b: image::Dyna
     }
 }
 
-pub fn assert_eq(expected_image_path: &str, given_image: image::DynamicImage, diff_output_path: &str) {
+pub fn assert_eq_or_save_diff_and_actual(expected_image: image::DynamicImage, actual_image: image::DynamicImage, diff_output_path: &str, actual_image_output_path: &str) {
+    let res = std::panic::catch_unwind(|| {
+        assert_eq_or_save_diff(expected_image, actual_image.clone(), diff_output_path);
+    });
+
+    if res.is_err() {
+        actual_image.save(actual_image_output_path).expect("Couldn't save actual image to disk - test failed anyways though.");
+        panic!(res.unwrap_err());
+    }
+}
+
+pub fn assert_eq(expected_image_path: &str, given_image: image::DynamicImage, diff_output_path: &str, actual_image_output_path: &str) {
     match Reader::open(expected_image_path) {
-        Ok(expected_image) => assert_eq_or_save_diff(expected_image.decode().expect("Error decoding expected image"), given_image, diff_output_path),
+        Ok(expected_image) => assert_eq_or_save_diff_and_actual(expected_image.decode().expect("Error decoding expected image"), given_image, diff_output_path, actual_image_output_path),
         Err(_) => {
             given_image.save(expected_image_path).expect("Error saving image as expected");
         }
